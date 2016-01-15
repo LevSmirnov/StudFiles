@@ -1,27 +1,20 @@
-BEGIN
-  FOR
- select count(p1.id_file),
- (
-    select count(p1.id_file) from activities as p1
-    where p1.activity_date > :DATE_FROM and  p1.activity_date < :DATE_TO
-    and p1.id_activity = 499
- ) from activities as p1 where p1.activity_date > :DATE_FROM
- and  p1.activity_date < :DATE_TO
-    and  p1.id_activity = 498    INTO :srochnye, :kontract
-  DO
-  BEGIN
-      procent =  (kontract / srochnye)*100;
-  END
-END
-
+CREATE OR ALTER PROCEDURE PROCENT_ON_YEAR 
+returns (
+    param1 integer,
+    percent float)
+as
+declare variable value_1 float;
+declare variable value_2 float;
+declare variable value_3 float;
+declare variable value_4 float;
 BEGIN
   FOR select EXTRACT(YEAR FROM p1.registr_date), count(p1.id_file) from personal_file as p1
      where p1.registr_date > '01.01.2000'  group by EXTRACT(YEAR FROM p1.registr_date)
-     INTO :NUM_YEAR, :value_1
+     INTO :param1, :value_1
   DO
   BEGIN
-            
-    if (:NUM_YEAR > 2000) then
+
+    if (:param1 > 2000) then
     begin
        value_2 = value_1;
        value_4 = (value_2 / value_3)*100;
@@ -29,6 +22,11 @@ BEGIN
        begin
          percent = value_4 - 100;
        end 
+    value_4 = (value_2 / value_3)*100; 
+    if (value_4 > 100) then 
+    begin 
+        percent = value_4 - 100; 
+    end 
        else
        begin
          percent = (100 - value_4)*(-1) ;
@@ -42,3 +40,27 @@ BEGIN
     end
   END
 END
+
+create or alter procedure KONTRAKTNIKI(
+            DATE_FROM date,     
+            DATE_TO date)
+returns (
+    procent float)
+as
+declare variable kontract float; 
+declare variable srochnye float; 
+begin
+    for
+  select count(p1.id_file), 
+(
+    select count(p1.id_file) from activities as p1
+where p1.activity_date > :date_from and p1.activity_date < :date_to
+and p1.id_activity = 499
+) from activities as p1  where p1.id_activity = 498
+    into :srochnye, :kontract
+    do
+    begin
+    procent = (kontract / srochnye)*100;
+    end 
+
+end
