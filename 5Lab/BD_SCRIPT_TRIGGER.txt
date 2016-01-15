@@ -1,0 +1,69 @@
+create or alter trigger append_sluzhba for activities
+active before insert position 0
+as 
+declare variable id integer;
+declare variable coun integer; 
+begin
+	for select p1.id_file, count(p1.id_reason) from delays as p1 group by p1.id_file
+	into :id, :coun
+	do 
+	begin
+		if (:id = new.id_file) then
+		begin
+			if (coun = 1) then
+			begin
+				exception NOT_COMMIT; 
+			end 
+		end 
+	end 	
+end 	
+
+CREATE OR ALTER trigger watchdog_activities for activities
+active before insert position 0
+AS
+declare variable id_f integer;
+declare variable id_a integer;
+declare variable out_date date;
+begin
+    for select p1.id_file, p1.id_activity, p1.activity_date_off from activities as p1 /* p1.id_file, p1.id_activity from activities as p1 where  */
+    into :id_f, :id_a, :out_date
+    do
+    begin
+        if (new.id_activity = 499) then
+        begin
+            if (:id_f = new.id_file) then
+            begin
+                if (:id_a = 450) then
+                begin
+                  if (:out_date is null) then
+                  begin
+                    execute procedure create_kontrakt_date (450, :id_f, new.activity_date);
+                  end 
+                end 
+            end
+        end
+        else if (new.id_activity = 450) then
+        begin
+            if (:id_f = new.id_file) then
+            begin
+              if ((:id_a = 498) or (:id_a = 499))  then
+              begin
+                if (:out_date is null) then
+                begin
+                 exception prizyv_run;
+                end
+              end 
+            end 
+        end
+     end 
+  end
+
+create or alter procedure CREATE_KONTRAKT_DATE (
+    OLD_ACT integer,
+    ID_PF integer,
+    NEW_DATE date)
+as
+begin
+  update Activities set activity_date_off = :new_date where id_file = :id_pf and id_activity = :old_act;
+  suspend;
+end
