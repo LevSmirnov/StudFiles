@@ -1,0 +1,88 @@
+CREATE OR ALTER VIEW REQUEST_1(
+    NAME,
+    "COUNT")
+AS
+select p1.name, count(p1.id_academic) from academic_place as p1, recruit as p2
+where p1.id_academic = p2.id_academic and p2.id_recruit in
+(
+    select p1.id_recruit from Personal_file as p1, delays as
+    p2, reasons as p3 where  p2.id_reason = p3.id_reason
+    and p3.reason_text = 'Delay University' and p1.id_file = p2.id_file
+) group by p1.name order by count(p1.id_academic) DESC rows 1 to 10
+;
+
+CREATE OR ALTER VIEW REQUEST_2(
+    NAME,
+    "COUNT")
+AS
+select p3.name,count(p1.id_activity)  from activities as p1, personal_file as p2, recruit as p3
+where  p2.id_file = p1.id_file and p2.id_recruit = p3.id_recruit and p1.id_activity in
+(
+    select p1.id_activity from kind_activity as p1
+    where  p1.kind_activity not like 'Military%'
+) 
+ group by p3.name order by count(p1.id_activity) DESC, p3.name asc rows 1 to 5
+;
+
+CREATE OR ALTER VIEW VIEW_10(
+    ID_FILE,
+    "COUNT")
+AS
+select personal_file.id_file, count(activities.id_activity) from personal_file, activities where personal_file.id_file = activities.id_file group by id_file
+;
+CREATE OR ALTER VIEW VIEW_11(
+    ID_FILE)
+AS
+select id_file from personal_file where id_recruit in (select p1.id_recruit from recruit as p1, academic_place as p2 where p1.Id_academic = p2.Id_academic and p2.Name = 'SPBAU')
+;
+CREATE OR ALTER VIEW VIEW_2(
+    ID_RECRUIT,
+    NAME,
+    BIRTH_DATE,
+    REGISTR_PLACE,
+    ID_MOTHER,
+    ID_FATHER,
+    ID_ACADEMIC)
+AS
+SELECT * FROM Recruit WHERE Birth_date>='1990-01-01' AND Birth_date <='1991-01-01'
+;
+CREATE OR ALTER VIEW VIEW_3(
+    ID_FILE,
+    ID_ACTIVITY,
+    ACTIVITY_DATE)
+AS
+SELECT * FROM Activities WHERE Id_activity IN (3,4)
+;
+CREATE OR ALTER VIEW VIEW_5(
+    REGISTR_DATE,
+    SUBTRACT)
+AS
+SELECT Registr_date, id_file - 105 FROM Personal_file where id_file > 105
+;
+CREATE OR ALTER VIEW VIEW_6(
+    ID_FILE,
+    ID_ACTIVITY,
+    ACTIVITY_DATE)
+AS
+Select * from Activities order by id_activity
+;
+CREATE OR ALTER VIEW VIEW_7(
+    ID_FILE,
+    NAME)
+AS
+select p1.Id_file, p2.Name from personal_file as p1, recruit as p2 where p1.id_recruit = p2.id_recruit
+;
+CREATE OR ALTER VIEW VIEW_8(
+    ID_RECRUIT,
+    ACTIVITY_DATE,
+    KIND_ACTIVITY)
+AS
+select p1.id_recruit, p2.activity_date, p3.kind_activity from Personal_file as p1, activities as p2, kind_activity as p3 where p1.id_file = p2.id_file and p2.id_activity = p3.id_activity
+;
+CREATE OR ALTER VIEW VIEW_9(
+    ID_FILE,
+    NAME,
+    NAME1)
+AS
+select p1.id_file, p2.Name, p3.Name from personal_file as p1, recruit as p2, academic_place as p3 where p1.id_recruit = p2.id_recruit and p2.id_academic = p3.id_academic
+;
