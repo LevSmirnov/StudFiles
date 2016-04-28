@@ -1,0 +1,17 @@
+select p3.name, sum(p1.activity_date_off - p1.activity_date)  from activities as p1, personal_file as p2, recruit as p3
+where p2.id_file = p1.id_file and p1.activity_date_off is not NULL and p2.id_recruit = p3.id_recruit and p1.id_activity in
+(
+    select p1.id_activity from kind_activity as p1
+    where  p1.kind_activity not like 'Military%'
+) 
+group by p3.name order by sum(p1.activity_date_off - p1.activity_date) DESC, p3.name asc rows 1 to 5
+;
+
+
+select rc.name, sum(p1.activity_date_off - p1.activity_date) from activities as p1
+ inner join  personal_file ps on p1.id_file = ps.id_file
+ inner join recruit rc on ps.id_recruit = rc.id_recruit
+ inner join  kind_activity  ka on   p1.id_activity = ka.id_activity
+ where  ka.kind_activity not like 'Military%' and  p1.activity_date_off is not NULL
+ group by rc.name order by sum(p1.activity_date_off - p1.activity_date) DESC, rc.name asc rows 1 to 5
+;
